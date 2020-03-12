@@ -63,7 +63,7 @@ main(int argc, char **argv)
 	assert(!strncmp(buf, str+6, 3));
 
 	memset(buf, 0, sizeof(buf));
-	assert(b32dec(buf, 0, tst3, 16) == 9);
+	assert(b32decode(buf, tst3, -1) == 9);
 	assert(!strncmp(buf, str, 9));
 
 	assert(b32check("A9F", -1) == -2);

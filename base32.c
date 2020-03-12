@@ -111,6 +111,9 @@ b32dec(void *dst, size_t nbytes, const char *src, size_t src_len)
 size_t
 b32decode(void *dst, const char *src, size_t src_len)
 {
+	if (src_len == -1)
+		src_len = strlen(src);
+
 	return b32dec(dst, 0, src, src_len);
 }
 
