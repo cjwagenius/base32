@@ -131,7 +131,7 @@ b32enc(char *dst, size_t nbytes, const void *src, size_t src_len)
 			b32 = (s[4] & 0x1f);
 			dst[7] = b32map[b32];
 		case 4:
-			b32 = (s[3] & 0x03) | (s[4] & 0xe0) >> 5;
+			b32 = (s[3] & 0x03) << 3 | (s[4] & 0xe0) >> 5;
 			dst[6] = b32map[b32];
 			b32 = (s[3] & 0x7c) >> 2;
 			dst[5] = b32map[b32];
@@ -149,20 +149,22 @@ b32enc(char *dst, size_t nbytes, const void *src, size_t src_len)
 			b32 = (s[0] & 0xf8) >> 3;
 			dst[0] = b32map[b32];
 		}
+		for (i = padmap[bytes]; i < 8; i++)
+			dst[i] = '=';
 	}
-	for (i = padmap[bytes]; i < 8; i++)
-		dst[i] = '=';
 
-	if (src_len > 5)
-		return b32enc(dst + 8, nbytes + 8, s + 5, src_len - 5);
+	if (src_len <= 5)
+		return nbytes + 8;
 
-	return nbytes + 8;
+	return b32enc(dst + 8, nbytes + 8, s + bytes, src_len - bytes);
 }
 
-/* returns required length for <dst>. <dst> may be null. */
 size_t
 b32encode(char *dst, const void *src, size_t src_len)
 {
+	if (src_len == (size_t)-1)
+		src_len = strlen(src);
+
 	return b32enc(dst, 0, src, src_len);
 }
 
