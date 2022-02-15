@@ -117,54 +117,65 @@ b32decode(void *dst, const char *src, size_t src_len)
 	return b32dec(dst, 0, src, src_len);
 }
 
-static size_t
-b32enc(char *dst, size_t nbytes, const void *src, size_t src_len)
+static unsigned
+b32enc(char *dst, const void *src, size_t nb)
 {
-	int i;
 	int b32;
+	const char pad[] = "========";
 	const unsigned char *s = src;
-	int bytes = src_len > 5 ? 5 : src_len;
 
-	if (dst) {
-		switch (bytes) {
-		case 5:
-			b32 = (s[4] & 0x1f);
-			dst[7] = b32map[b32];
-		case 4:
-			b32 = (s[3] & 0x03) << 3 | (s[4] & 0xe0) >> 5;
-			dst[6] = b32map[b32];
-			b32 = (s[3] & 0x7c) >> 2;
-			dst[5] = b32map[b32];
-		case 3:
-			b32 = (s[2] & 0x0f) << 1 | (s[3] & 0x80) >> 7;
-			dst[4] = b32map[b32];
-		case 2:
-			b32 = (s[1] & 0x01) << 4 | (s[2] & 0xf0) >> 4;
-			dst[3] = b32map[b32];
-			b32 = (s[1] & 0x3e) >> 1;
-			dst[2] = b32map[b32];
-		default:
-			b32 = (s[0] & 0x07) << 2 | (s[1] & 0xc0) >> 6;
-			dst[1] = b32map[b32];
-			b32 = (s[0] & 0xf8) >> 3;
-			dst[0] = b32map[b32];
-		}
-		for (i = padmap[bytes]; i < 8; i++)
-			dst[i] = '=';
+	if (nb > 5) nb = 5;
+	switch (nb) {
+	case 5:
+		b32 = (s[4] & 0x1f);
+		dst[7] = b32map[b32];
+	case 4:
+		b32 = (s[3] & 0x03) << 3 | (s[4] & 0xe0) >> 5;
+		dst[6] = b32map[b32];
+		b32 = (s[3] & 0x7c) >> 2;
+		dst[5] = b32map[b32];
+	case 3:
+		b32 = (s[2] & 0x0f) << 1 | (s[3] & 0x80) >> 7;
+		dst[4] = b32map[b32];
+	case 2:
+		b32 = (s[1] & 0x01) << 4 | (s[2] & 0xf0) >> 4;
+		dst[3] = b32map[b32];
+		b32 = (s[1] & 0x3e) >> 1;
+		dst[2] = b32map[b32];
+	default:
+		b32 = (s[0] & 0x07) << 2 | (s[1] & 0xc0) >> 6;
+		dst[1] = b32map[b32];
+		b32 = (s[0] & 0xf8) >> 3;
+		dst[0] = b32map[b32];
+	}
+	if (nb < 5) {
+		int i = padmap[nb];
+		strcpy(dst + i, pad + i);
 	}
 
-	if (src_len <= 5)
-		return nbytes + 8;
-
-	return b32enc(dst + 8, nbytes + 8, s + bytes, src_len - bytes);
+	return nb;
 }
 
-size_t
-b32encode(char *dst, const void *src, size_t src_len)
+size_t b32enclen(size_t len)
 {
-	if (src_len == (size_t)-1)
-		src_len = strlen(src);
+	size_t r;
 
-	return b32enc(dst, 0, src, src_len);
+	r = len / 5;
+	r += len % 5 ? 1 : 0;
+
+	return r;
+}
+void b32encode(char *dst, const void *src, size_t len)
+{
+	const char *zrc = src;
+
+	if (len == (size_t)-1)
+		len = strlen(zrc);
+
+	while (len) {
+		len -= b32enc(dst, zrc, len);
+		zrc += 5;
+		dst += 8;
+	}
 }
 

@@ -28,8 +28,10 @@
  *
  **/
 
+
 #ifndef NOB32CHECK
 extern size_t b32check(const char *src, size_t src_len);
 #endif
+extern size_t b32enclen(size_t len);
 extern size_t b32encode(char *dst, const void *src, size_t src_len);
 extern size_t b32decode(void *dst, const char *src, size_t src_len);
