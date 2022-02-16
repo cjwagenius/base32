@@ -30,6 +30,7 @@
 
 #ifndef BASE32_H
 #define BASE32_H
+#include <stddef.h>
 
 #ifndef NOB32CHECK
 size_t b32check(const char *src, size_t len);
@@ -103,24 +104,25 @@ size_t b32check(const char *src, size_t len)
 static unsigned b32dec(void *dst, const char *src, size_t len)
 {
 	int nb;
-	unsigned char *d = dst;
+	unsigned char **d = dst;
 
 	nb = len > 7 ? 8 : len;
 	while (src[nb - 1] == '=') nb --;
 
 	switch (nb) {
 	case 8: case 7:
-		d[4] = B32(src[6]) << 5 | B32(src[7]);
+		(*d)[4] = B32(src[6]) << 5 | B32(src[7]);
 	case 6: case 5:
-		d[3] = B32(src[4]) << 7 | B32(src[5]) << 2 |
+		(*d)[3] = B32(src[4]) << 7 | B32(src[5]) << 2 |
 		       B32(src[6]) >> 3;
 	case 4:
-		d[2] = B32(src[3]) << 4 | B32(src[4]) >> 1;
+		(*d)[2] = B32(src[3]) << 4 | B32(src[4]) >> 1;
 	default:
-		d[1] = B32(src[1]) << 6 | B32(src[2]) << 1 |
+		(*d)[1] = B32(src[1]) << 6 | B32(src[2]) << 1 |
 		       B32(src[3]) >> 4;
-		d[0] = B32(src[0]) << 3 | B32(src[1]) >> 2;
+		(*d)[0] = B32(src[0]) << 3 | B32(src[1]) >> 2;
 	}
+	*d += dpdmap[nb];
 
 	return len > 7 ? 8 : len;
 }
@@ -146,8 +148,7 @@ size_t b32decode(void *dst, const char *src, size_t len)
 		len = strlen(src);
 
 	while (len) {
-		len -= b32dec(zst, src, len);
-		zst += 5;
+		len -= b32dec(&zst, src, len);
 		src += 8;
 	}
 
