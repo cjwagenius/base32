@@ -95,7 +95,7 @@ b32dec(void *dst, size_t nbytes, const char *src, size_t src_len)
 			d[2] = B32(src[3]) << 4 | B32(src[4]) >> 1;
 		default:
 			d[1] = B32(src[1]) << 6 | B32(src[2]) << 1 |
-			       B32(src[4]) >> 4;
+			       B32(src[3]) >> 4;
 			d[0] = B32(src[0]) << 3 | B32(src[1]) >> 2;
 		}
 	}
