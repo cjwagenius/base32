@@ -165,17 +165,20 @@ size_t b32enclen(size_t len)
 
 	return r;
 }
-void b32encode(char *dst, const void *src, size_t len)
+size_t b32encode(char *dst, const void *src, size_t len)
 {
+	char *zst = dst;
 	const char *zrc = src;
 
 	if (len == (size_t)-1)
 		len = strlen(zrc);
 
 	while (len) {
-		len -= b32enc(dst, zrc, len);
+		len -= b32enc(zst, zrc, len);
 		zrc += 5;
-		dst += 8;
+		zst += 8;
 	}
+
+	return zst - dst;
 }
 
