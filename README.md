@@ -41,7 +41,7 @@ size_t b32decode(void *dst, const char *src, size_t src_len)
 	 * If [len] == -1, [src] is assumed to be a null-terminated string, and
 	 * strlen() will be used to calculate its length. [dst] must have
 	 * enough space to hold the decoded data. A blunt calculation to
-	 * guarantee space for it, is ([len] / 8) * 5 + 1). Use b32check() to
+	 * guarantee space for it, is ([len] / 8 + 1) * 5). Use b32check() to
 	 * get exact precision.
 	 * This function doesn't check for errors. An invalid b32-string will
 	 * generate undefined results. Please use b32check() if validation is
