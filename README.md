@@ -3,17 +3,59 @@ A small efficient public domain base32 encoder/decoder in ANSI C.
 
 ```
 size_t b32check(const char *src, size_t src_len)
+
+	/**
+	 * Checks a base32-encoded string and return the length of the string
+	 * in a decoded format. If [len] is (size_t)-1, str is assumed to be a
+	 * null-terminated string.
+	 *
+	 * Returns 0 on success, and a negative value on error. Errno is set
+	 * to indicate what went wrong.
+	 *
+	 * Errors:
+	 *	ERANGE		The string length is not a multipler of eight
+	 *			and is therefore not a valid b32-string. 
+	 *	EILSEQ		An illegal byte for base32 was found.
+	 **/
 ```
-> Checks if a base32 encoded string is correct and returns the required size of the buffer recieving the decoded data. If *src_len* is -1, *src* is assumed to be a null-terminated string. On error, return-value is -1 for invalid character or invalid padding and -2 for invalid string length (not a multipler of 8). This function can be omitted at compile time with`-DNOB32CHECK`
 
 ```
 size_t b32encode(char *dst, const void *src, size_t src_len)
+
+	/**
+	 * Encodes data of [len] length from [src] to [dst]. if [len] == -1,
+	 * [src] is assumed to be a null-terminated string and strlen() will be
+	 * used to calculate its length. [dst] must have enough space to hold
+	 * the encoded data. b32enclen() may be used to calculate the space
+	 * needed.
+	 *
+	 * Returns the length of the b32-encoded string.
+	 **/
 ```
-> Encodes *src_len* bytes at *src* to *dst* (if *dst* is not NULL). Returns required buffer length for *dst* on success.
 
 ```
 size_t b32decode(void *dst, const char *src, size_t src_len)
+
+	/**
+	 * Decodes a base32-encoded string of [len] bytes from [src] to [dst].
+	 * If [len] == -1, [src] is assumed to be a null-terminated string, and
+	 * strlen() will be used to calculate its length. [dst] must have
+	 * enough space to hold the decoded data. A blunt calculation to
+	 * guarantee space for it, is ([len] / 8) * 5 + 1). Use b32check() to
+	 * get exact precision.
+	 * This function doesn't check for errors. An invalid b32-string will
+	 * generate undefined results. Please use b32check() if validation is
+	 * required.
+	 *
+	 * Returns the length of the data in [dst].
+	 **/
 ```
-> Decodes *src_len* bytes at *src* to *dst* (if *dst* is not NULL). Returns required buffer length for *dst*. If *src_len* is -1, *src* is assumed to be a null-terminated string.
-> *b32decode()* does not check for errors. An invalid base32-string leads to undefined behavior. Use *b32check()* if validation is needed.
+
+```
+size_t b32enclen(size_t len)
+
+	/**
+	 * Calculates the space needed to b32-encode data of size [len].
+	 **/
+```
 
