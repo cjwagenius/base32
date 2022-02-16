@@ -165,29 +165,25 @@ static unsigned b32enc(char *dst, const void *src, size_t nb)
 	if (nb > 5) nb = 5;
 	switch (nb) {
 	case 5:
-		b32 = s[4];
-		dst[7] = b32map[b32 & 0x1f];
-		b32 >>= 5;
+		b32 = (s[4] & 0x1f);
+		dst[7] = b32map[b32];
 	case 4:
-		b32 |= s[3] << 3;
-		dst[6] = b32map[b32 & 0x1f];
-		b32 >>= 5;
-		dst[5] = b32map[b32 & 0x1f];
-		b32 >>= 5;
+		b32 = (s[3] & 0x03) << 3 | (s[4] & 0xe0) >> 5;
+		dst[6] = b32map[b32];
+		b32 = (s[3] & 0x7c) >> 2;
+		dst[5] = b32map[b32];
 	case 3:
-		b32 |= s[2] << 1;
-		dst[4] = b32map[b32 & 0x1f];
-		b32 >>= 5;
+		b32 = (s[2] & 0x0f) << 1 | (s[3] & 0x80) >> 7;
+		dst[4] = b32map[b32];
 	case 2:
-		b32 |= s[1] << 4;
-		dst[3] = b32map[b32 & 0x1f];
-		b32 >>= 5;
-		dst[2] = b32map[b32 & 0x1f];
-		b32 >>= 5;
+		b32 = (s[1] & 0x01) << 4 | (s[2] & 0xf0) >> 4;
+		dst[3] = b32map[b32];
+		b32 = (s[1] & 0x3e) >> 1;
+		dst[2] = b32map[b32];
 	default:
-		b32 |= s[0] << 2;
-		dst[1] = b32map[b32 & 0x1f];
-		b32 >>= 5;
+		b32 = (s[0] & 0x07) << 2 | (s[1] & 0xc0) >> 6;
+		dst[1] = b32map[b32];
+		b32 = (s[0] & 0xf8) >> 3;
 		dst[0] = b32map[b32];
 	}
 	if (nb < 5) {
